@@ -2,106 +2,66 @@
 * @Author: caixin
 * @Date:   2017-11-25 16:13:36
 * @Last Modified by:   1249614072@qq.com
-* @Last Modified time: 2017-12-14 16:17:47
+* @Last Modified time: 2018-02-24 23:57:29
 */
 import axios from 'axios';
 import moment from "moment";
+import qs from 'qs';
 
+let base = '';
 
-const setValue = (url, params) => { 
-	return axios.put(url, params);
+let instance = axios.create({
+    baseURL: 'api/',
+    timeout: 20000,
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Accept': 'application/json'
+    }
+})
+
+// user
+
+const SignIn = params => { 
+	return instance.post(`sign`, qs.stringify(params)).then(resp => resp.data);
 };
 
-const getValue = (url) => {
-	return axios.get(url);
+const Regist = params => { 
+	return instance.post(`regist`, qs.stringify(params)).then(resp => resp.data);
 };
 
-const getStatus = (r, devName) => {
-	let url = '/api/v2/keys/nodes/'+ r.key +'/' + devName + '/status'
-	return axios.get(url).then(res => {
-		let value = JSON.parse(JSON.parse(res['request']['response'])['node']['value']);
-		r = Object.assign(r, value)
-		if (JSON.stringify(value['data']) == '{}') {
-			r.status = 1
-			return r;
-		};
+const getSignStatus = params => { 
+	return instance.get(`sign`, {params: params}).then(resp => resp.data);
+};
 
-		let test_table = value.data.test_table;
-		let timestamp = ''
-		if (test_table.constructor == Array) {
-			timestamp = test_table[0]['time'];
-		} else {
-			timestamp = test_table.timestamp;
-			if (test_table.fields.unit == 'u') {
-				timestamp = timestamp / 1000000;
-			};
-		}
-
-		if (parseInt(new Date().getTime() / 1000) - timestamp <= 60 * 20) {
-			r.status = 1
-		}
-		r.times = moment.unix(timestamp).format('YYYY-MM-DD HH:mm:ss');
-		return r;
-	});
-}
-
-const sortJ = (a, b) => {
-	if (a.key > b.key) {
-		return 1;
-	}else if(a.key < b.key) {
-		return -1;
-	}else{
-		return 0;
-	}
-}
+const SignUp = params => { 
+	return instance.get(`signup`, {params: params}).then(resp => resp.data);
+};
 
 
-const getKeys = (paras) => {
-	let {url, search, devName, page, pageNum} = paras;
 
-	return axios.get(url).then( res => {
-		let keys = JSON.parse(res['request']['response'])['node']['nodes'];
-		keys.sort(sortJ);
 
-		keys.some(r => {
-			r.key = r.key.split('/')[2];
-			r.times = ''
-			r.status = 0
-			r.check_restart_time = ''
-			r.handle_restart_time = ''
-			r.transport_restart_time = ''
-		});
+const getPost = params => { 
+	return axios.get(`${base}/post`, {params: params});
+};
 
-		let keyss = keys.filter(r => {
-			if (search && r.key.indexOf(search) == -1) return false;
-			return true;
-		});
 
-		let total = keys.length;
+const getTotal = params => { 
+	return axios.get(`${base}/total`, {params: params});
+};
 
-		keyss = keyss.map(r => {
-			getStatus(r, devName).then(res => {
-			})
-			return r;
-		});
 
-		let keyPage = keyss.filter((u, index) => index < pageNum * page && index >= pageNum * (page - 1));
-		return new Promise((resolve, reject) => {
-		    setTimeout(() => {
-		    	resolve({
-		    		value: keyss,
-		    		keypage: keyPage,
-		    		total: total,
-		    	});
-		    }, 1000)
-		})
-	});
+const getTags = params => { 
+	return axios.get(`${base}/tags`, {params: params});
 };
 
 
 export {
-	setValue,
-	getValue,
-	getKeys,
-	getStatus,
+	SignIn,
+	Regist,
+	getSignStatus,
+	SignUp,
+
+	getPost,
+	getTags,
+	getTotal,
 }

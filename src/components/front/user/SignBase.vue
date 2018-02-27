@@ -37,7 +37,7 @@
         width: 235px;
         height: 110px;
         background-size: contain;
-        background: url(../assets/sign.png) no-repeat;
+        background: url(../../../assets/sign.png) no-repeat;
         text-align: center;
     }
 

@@ -7,9 +7,12 @@ import router from './router'
 import axios from 'axios'
 import VueParticles from 'vue-particles'
 import ElementUI from 'element-ui'
-import moment from "moment";
+import moment from "moment"
+import Mock from './mock'
 import 'element-ui/lib/theme-chalk/index.css'
+import 'element-ui/lib/theme-chalk/display.css'
 import 'font-awesome/css/font-awesome.min.css'
+import 'jquery'
 
 Vue.use(ElementUI)
 Vue.use(VueParticles)
@@ -19,19 +22,25 @@ Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.prototype.$moment = moment
 
-// router.beforeEach((to, from, next) => {
-// 	if(to.path == '/login') {
-// 		sessionStorage.removeItem('user');
-// 	}
+// Mock.AnalogData()
 
-// 	let user = JSON.parse(sessionStorage.getItem('user'));
-// 	if (!user && to.path != '/login') {
-// 		next({path: '/login'})
-// 	} else {
-// 		next()
-// 	}
-// })
+router.beforeEach((to, from, next) => {
+	// if(to.path == '/login') {
+	// 	sessionStorage.removeItem('user');
+	// }
 
+	// let user = JSON.parse(sessionStorage.getItem('user'));
+	// if (!user && to.path != '/login') {
+	// 	next({path: '/login'})
+	// } else {
+	// 	next()
+	// }
+
+	if (to.meta.title) {
+		document.title = to.meta.title;
+	}
+	next();
+})
 
 /* eslint-disable no-new */
 new Vue({
